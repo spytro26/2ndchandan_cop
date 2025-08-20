@@ -14,8 +14,9 @@ let Sharing: any = null;
 try {
   Print = require('expo-print');
   Sharing = require('expo-sharing');
+  console.log('Cold Room - PDF packages loaded successfully');
 } catch (error) {
-  console.log('PDF packages not available, will use text sharing fallback');
+  console.log('Cold Room - PDF packages not available, will use text sharing fallback', error);
 }
 
 export default function ColdRoomResultsScreen() {
@@ -23,7 +24,19 @@ export default function ColdRoomResultsScreen() {
   const [loading, setLoading] = useState(true);
 
   const generateHTMLReport = () => {
-    if (!results) return '';
+    if (!results) {
+      console.log('Cold Room - No results available for PDF generation');
+      return '';
+    }
+    
+    console.log('Cold Room - Generating PDF with results:', Object.keys(results));
+    console.log('Cold Room - Available properties:', {
+      hasProduct: !!results.product,
+      hasProductInfo: !!results.productInfo,
+      hasConditions: !!results.conditions,
+      hasUsage: !!results.usage,
+      hasConstruction: !!results.construction
+    });
     
     return `
     <!DOCTYPE html>
@@ -34,15 +47,18 @@ export default function ColdRoomResultsScreen() {
         <style>
             body { 
                 font-family: Arial, sans-serif; 
-                margin: 20px; 
-                line-height: 1.4; 
+                margin: 12px; 
+                line-height: 1.3; 
                 color: #333;
+                font-size: 11px;
             }
             .header { 
-                text-align: center; 
-                margin-bottom: 30px; 
-                border-bottom: 2px solid #3B82F6; 
-                padding-bottom: 20px;
+                background: linear-gradient(135deg, #10B981, #059669); 
+                color: white; 
+                padding: 12px; 
+                text-align: center;
+                margin-bottom: 10px;
+                border-radius: 8px;
             }
             .company-name {
                 font-size: 28px;
@@ -109,9 +125,9 @@ export default function ColdRoomResultsScreen() {
             }
             th, td { 
                 border: 1px solid #E5E7EB; 
-                padding: 8px; 
+                padding: 4px; 
                 text-align: center; 
-                font-size: 12px;
+                font-size: 9px;
             }
             th { 
                 background: #EBF8FF; 
@@ -148,19 +164,105 @@ export default function ColdRoomResultsScreen() {
             <div class="company-name">ENZO ENGINEERING SOLUTIONS</div>
             <div class="powered-by">⚡ Powered by Enzo CoolCalc</div>
             <div class="title">🌡️ COLD ROOM COOLING LOAD CALCULATION REPORT</div>
-            <p>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+            <p style="margin: 5px 0; font-size: 10px;">Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
         </div>
 
-        <div class="main-result">
-            <div class="main-value">${results.finalLoad.toFixed(2)} kW</div>
-            <div>Required Cooling Capacity</div>
-            <div style="margin-top: 10px;">
-                <div>Refrigeration: ${results.totalTR.toFixed(2)} TR</div>
-                <div>Daily Energy: ${results.dailyKJ?.toFixed(0) || '0'} kJ/24Hr</div>
-                <div>Daily Energy: ${(results.finalLoad * 24).toFixed(1)} kWh</div>
-                <div>Heat Removal: ${results.totalBTU.toFixed(0)} BTU/hr</div>
+        <div class="section">
+            <div class="section-title">📋 INPUT PARAMETERS</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #10B981;">🏗️ Room Construction</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Dimensions:</strong> ${results.dimensions.length}m × ${results.dimensions.width}m × ${results.dimensions.height}m</div>
+                        <div><strong>Volume:</strong> ${results.volume ? results.volume.toFixed(1) : 'N/A'} m³</div>
+                        <div><strong>Door:</strong> ${results.dimensions.doorWidth || 'N/A'}m × ${results.dimensions.doorHeight || 'N/A'}m</div>
+                        <div><strong>Wall Area:</strong> ${results.areas.wall ? results.areas.wall.toFixed(1) : 'N/A'} m²</div>
+                        <div><strong>Ceiling Area:</strong> ${results.areas.ceiling ? results.areas.ceiling.toFixed(1) : 'N/A'} m²</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #10B981;">🌡️ Operating Conditions</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>External Temp:</strong> ${results.conditions?.externalTemp || results.roomData?.externalTemp || 35}°C</div>
+                        <div><strong>Internal Temp:</strong> ${results.conditions?.internalTemp || results.roomData?.internalTemp || 4}°C</div>
+                        <div><strong>ΔT:</strong> ${results.temperatureDifference?.toFixed(0) || 31}°C</div>
+                        <div><strong>Operating Hours:</strong> ${results.conditions?.operatingHours || results.roomData?.operatingHours || 24}h/day</div>
+                        <div><strong>Humidity:</strong> ${results.conditions?.humidity || results.roomData?.humidity || 85}%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #10B981;">🔧 Insulation Details</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Type:</strong> ${results.construction.insulationType || 'PUF'}</div>
+                        <div><strong>Wall Thickness:</strong> ${results.construction.wallThickness || 100}mm</div>
+                        <div><strong>Ceiling Thickness:</strong> ${results.construction.ceilingThickness || 100}mm</div>
+                        <div><strong>Floor Thickness:</strong> ${results.construction.floorThickness || 100}mm</div>
+                        <div><strong>U-Factor:</strong> ${results.construction.uFactor ? results.construction.uFactor.toFixed(3) : 'N/A'} W/m²K</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #10B981;">🥩 Product Information</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Type:</strong> ${results.productInfo?.type || results.product?.productType || 'General Food Items'}</div>
+                        <div><strong>Daily Load:</strong> ${results.productInfo?.mass || results.product?.dailyLoad || 1000} kg/day</div>
+                        <div><strong>Incoming Temp:</strong> ${results.productInfo?.incomingTemp || results.product?.incomingTemp || 25}°C</div>
+                        <div><strong>Outgoing Temp:</strong> ${results.productInfo?.outgoingTemp || results.product?.outgoingTemp || 4}°C</div>
+                        <div><strong>Storage Capacity:</strong> ${results.storageCapacity?.density || results.product?.storageCapacity || 8} kg/m³</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #10B981;">👥 Personnel & Equipment</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Number of People:</strong> ${results.roomData?.numberOfPeople || results.usage?.numberOfPeople || 2}</div>
+                        <div><strong>Working Hours:</strong> ${results.roomData?.workingHours || results.usage?.workingHours || 8}h/day</div>
+                        <div><strong>Light Load:</strong> ${(results.roomData?.lightingWattage || results.usage?.lightLoad || 300) / 1000}kW</div>
+                        <div><strong>Fan Motor:</strong> ${results.roomData?.fanMotorRating || results.usage?.fanMotorRating || 0.37}kW</div>
+                        <div><strong>Number of Fans:</strong> ${results.roomData?.numberOfFans || results.usage?.numberOfFans || 1}</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #10B981;">📊 Load Distribution</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Transmission:</strong> ${results.breakdown?.transmission?.total?.toFixed(2) || 'N/A'}kW</div>
+                        <div><strong>Product Load:</strong> ${results.breakdown?.product?.toFixed(2) || 'N/A'}kW</div>
+                        <div><strong>Air Infiltration:</strong> ${results.breakdown?.airChange?.toFixed(2) || 'N/A'}kW</div>
+                        <div><strong>Internal Loads:</strong> ${results.breakdown?.miscellaneous?.total?.toFixed(2) || 'N/A'}kW</div>
+                        <div><strong>Safety Factor:</strong> 10%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="main-result">
+                <div class="main-value">${results.finalLoad ? results.finalLoad.toFixed(2) : 'N/A'} kW</div>
+                <div style="font-size: 12px; margin-bottom: 8px;">Required Cooling Capacity</div>
+                <div style="font-size: 10px;">
+                    <div>Refrigeration: ${results.totalTR ? results.totalTR.toFixed(2) : 'N/A'} TR</div>
+                    <div>Daily Energy: ${results.finalLoad ? (results.finalLoad * 24).toFixed(1) : 'N/A'} kWh</div>
+                    <div>Heat Removal: ${results.totalBTU ? results.totalBTU.toFixed(0) : 'N/A'} BTU/hr</div>
+                    <div>SHR: ${results.dailyLoads?.shr?.toFixed(3) || '1.000'}</div>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 12px; border-radius: 8px; font-size: 10px;">
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px;">Calculation Summary</div>
+                <div>Base Load: ${(results.finalLoad / 1.1).toFixed(2)} kW</div>
                 <div>Safety Factor: 10%</div>
-                <div>Sensible Heat Ratio: ${results.dailyLoads?.shr?.toFixed(1) || '1.0'}</div>
+                <div>Daily Energy: ${results.dailyKJ?.toFixed(0) || '0'} kJ/24Hr</div>
+                <div>Heat Transfer Rate: ${results.totalBTU.toFixed(0)} BTU/hr</div>
+                <div>Efficiency Rating: Standard</div>
+                <div>Cooling Type: Chilled Storage</div>
             </div>
         </div>
 
@@ -171,25 +273,25 @@ export default function ColdRoomResultsScreen() {
                 <div class="subsection-title">🏗️ Room Construction</div>
                 <div class="info-box">
                     <div><strong>Room Dimensions:</strong></div>
-                    <div>• Length: ${results.dimensions.length} m</div>
-                    <div>• Width: ${results.dimensions.width} m</div>
-                    <div>• Height: ${results.dimensions.height} m</div>
-                    <div>• Total Volume: ${results.volume.toFixed(1)} m³</div>
+                    <div>• Length: ${results.dimensions?.length || 'N/A'} m</div>
+                    <div>• Width: ${results.dimensions?.width || 'N/A'} m</div>
+                    <div>• Height: ${results.dimensions?.height || 'N/A'} m</div>
+                    <div>• Total Volume: ${results.volume?.toFixed(1) || 'N/A'} m³</div>
                 </div>
                 <div class="info-box">
                     <div><strong>Door Specifications:</strong></div>
-                    <div>• Door Width: ${results.doorDimensions.width} m</div>
-                    <div>• Door Height: ${results.doorDimensions.height} m</div>
+                    <div>• Door Width: ${results.doorDimensions?.width || 'N/A'} m</div>
+                    <div>• Door Height: ${results.doorDimensions?.height || 'N/A'} m</div>
                     <div>• Door Openings: ${results.roomData?.doorOpenings || 'N/A'} times/day</div>
                 </div>
                 <div class="info-box">
                     <div><strong>Insulation Details:</strong></div>
-                    <div>• Insulation Type: ${results.construction.type}</div>
-                    <div>• Thickness: ${results.construction.thickness} mm</div>
-                    <div>• U-Factor: ${results.construction.uFactor.toFixed(3)} W/m²K (Excel exact)</div>
-                    <div>• Floor Thickness: ${results.construction.floorThickness || 100} mm</div>
-                    <div>• Number of Heaters: ${results.construction.numberOfHeaters || 1}</div>
-                    <div>• Number of Doors: ${results.construction.numberOfDoors || 1}</div>
+                    <div>• Insulation Type: ${results.construction?.type || 'PUF'}</div>
+                    <div>• Thickness: ${results.construction?.thickness || 100} mm</div>
+                    <div>• U-Factor: ${results.construction?.uFactor?.toFixed(3) || 'N/A'} W/m²K (Excel exact)</div>
+                    <div>• Floor Thickness: ${results.construction?.floorThickness || 100} mm</div>
+                    <div>• Number of Heaters: ${results.construction?.numberOfHeaters || 1}</div>
+                    <div>• Number of Doors: ${results.construction?.numberOfDoors || 1}</div>
                 </div>
             </div>
 
@@ -266,33 +368,33 @@ export default function ColdRoomResultsScreen() {
                 </tr>
                 <tr>
                     <td>Transmission Load</td>
-                    <td>${results.breakdown.transmission.total.toFixed(3)}</td>
-                    <td>${(results.breakdown.transmission.total / 3.517).toFixed(3)}</td>
+                    <td>${results.breakdown?.transmission?.total?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.breakdown?.transmission?.total || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr>
                     <td>Product Load</td>
-                    <td>${results.breakdown.product.toFixed(3)}</td>
-                    <td>${(results.breakdown.product / 3.517).toFixed(3)}</td>
+                    <td>${results.breakdown?.product?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.breakdown?.product || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr>
                     <td>Respiration Load</td>
-                    <td>${results.breakdown.respiration.toFixed(3)}</td>
-                    <td>${(results.breakdown.respiration / 3.517).toFixed(3)}</td>
+                    <td>${results.breakdown?.respiration?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.breakdown?.respiration || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr>
                     <td>Air Change Load</td>
-                    <td>${results.breakdown.airChange.toFixed(3)}</td>
-                    <td>${(results.breakdown.airChange / 3.517).toFixed(3)}</td>
+                    <td>${results.breakdown?.airChange?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.breakdown?.airChange || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr>
                     <td>Door Opening Load</td>
-                    <td>${results.breakdown.doorOpening.toFixed(3)}</td>
-                    <td>${(results.breakdown.doorOpening / 3.517).toFixed(3)}</td>
+                    <td>${results.breakdown?.doorOpening?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.breakdown?.doorOpening || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr>
                     <td>Internal Loads</td>
-                    <td>${results.breakdown.miscellaneous.total.toFixed(3)}</td>
-                    <td>${(results.breakdown.miscellaneous.total / 3.517).toFixed(3)}</td>
+                    <td>${results.breakdown?.miscellaneous?.total?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.breakdown?.miscellaneous?.total || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr>
                     <td>Heater Loads</td>
@@ -301,18 +403,18 @@ export default function ColdRoomResultsScreen() {
                 </tr>
                 <tr>
                     <td>Total Calculated</td>
-                    <td>${results.totalBeforeSafety.toFixed(3)}</td>
-                    <td>${(results.totalBeforeSafety / 3.517).toFixed(3)}</td>
+                    <td>${results.totalBeforeSafety?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.totalBeforeSafety || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr>
                     <td>Safety Factor (10%)</td>
-                    <td>${results.safetyFactorLoad.toFixed(3)}</td>
-                    <td>${(results.safetyFactorLoad / 3.517).toFixed(3)}</td>
+                    <td>${results.safetyFactorLoad?.toFixed(3) || '0.000'}</td>
+                    <td>${((results.safetyFactorLoad || 0) / 3.517).toFixed(3)}</td>
                 </tr>
                 <tr class="final-row">
                     <td><strong>FINAL CAPACITY REQUIRED</strong></td>
-                    <td><strong>${results.finalLoad.toFixed(2)}</strong></td>
-                    <td><strong>${results.totalTR.toFixed(2)}</strong></td>
+                    <td><strong>${results.finalLoad?.toFixed(2) || 'N/A'}</strong></td>
+                    <td><strong>${results.totalTR?.toFixed(2) || 'N/A'}</strong></td>
                 </tr>
             </table>
             
@@ -365,37 +467,48 @@ export default function ColdRoomResultsScreen() {
   };
 
   const handleShare = async () => {
+    console.log('Cold Room - handleShare called, Print available:', !!Print, 'Sharing available:', !!Sharing);
     try {
       // Try to generate PDF first if packages are available
       if (Print && Sharing) {
+        console.log('Cold Room - Attempting PDF generation...');
         try {
           const htmlContent = generateHTMLReport();
+          console.log('Cold Room - Generated HTML content length:', htmlContent.length);
           const { uri } = await Print.printToFileAsync({
             html: htmlContent,
             base64: false
           });
+          console.log('Cold Room - PDF generated successfully:', uri);
           
           if (await Sharing.isAvailableAsync()) {
+            console.log('Cold Room - Sharing PDF file:', uri);
             await Sharing.shareAsync(uri, {
               mimeType: 'application/pdf',
               dialogTitle: 'Share Cold Room Load Calculation Report',
               UTI: 'com.adobe.pdf'
             });
+            console.log('Cold Room - PDF shared successfully');
             return;
+          } else {
+            console.log('Cold Room - Sharing not available, falling back to text');
           }
         } catch (pdfError) {
-          console.log('PDF generation failed, falling back to text:', pdfError);
+          console.log('Cold Room - PDF generation failed, falling back to text:', pdfError);
+          console.error('Cold Room - PDF Error details:', (pdfError as Error).message || pdfError);
         }
       }
       
       // Fallback to text sharing
+      console.log('Cold Room - Using text sharing fallback');
       const content = generateTextReport();
       await Share.share({
         message: content,
         title: 'Cold Room Load Calculation Report'
       });
+      console.log('Cold Room - Text report shared successfully');
     } catch (error) {
-      console.error('Share error:', error);
+      console.error('Cold Room - Share error:', error);
       Alert.alert('Error', 'Failed to share report');
     }
   };

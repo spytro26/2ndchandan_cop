@@ -14,8 +14,9 @@ let Sharing: any = null;
 try {
   Print = require('expo-print');
   Sharing = require('expo-sharing');
+  console.log('Blast Freezer - PDF packages loaded successfully');
 } catch (error) {
-  console.log('PDF packages not available, will use text sharing fallback');
+  console.log('Blast Freezer - PDF packages not available, will use text sharing fallback', error);
 }
 
 export default function BlastFreezerResultsScreen() {
@@ -23,7 +24,21 @@ export default function BlastFreezerResultsScreen() {
   const [loading, setLoading] = useState(true);
 
   const generateHTMLReport = () => {
-    if (!results) return '';
+    if (!results) {
+      console.log('Blast Freezer - No results available for PDF generation');
+      return '';
+    }
+    
+    console.log('Blast Freezer - Generating PDF with results:', Object.keys(results));
+    console.log('Blast Freezer - Available properties:', {
+      hasProduct: !!results.product,
+      hasProductInfo: !!results.productInfo,
+      hasConditions: !!results.conditions,
+      hasUsage: !!results.usage,
+      hasConstruction: !!results.construction,
+      hasLoadBreakdown: !!results.loadBreakdown,
+      hasBreakdown: !!results.breakdown
+    });
     
     return `
     <!DOCTYPE html>
@@ -34,15 +49,18 @@ export default function BlastFreezerResultsScreen() {
         <style>
             body { 
                 font-family: Arial, sans-serif; 
-                margin: 20px; 
-                line-height: 1.4; 
+                margin: 12px; 
+                line-height: 1.3; 
                 color: #333;
+                font-size: 11px;
             }
             .header { 
-                text-align: center; 
-                margin-bottom: 30px; 
-                border-bottom: 2px solid #3B82F6; 
-                padding-bottom: 20px;
+                background: linear-gradient(135deg, #DC2626, #B91C1C); 
+                color: white; 
+                padding: 12px; 
+                text-align: center;
+                margin-bottom: 10px;
+                border-radius: 8px;
             }
             .company-name {
                 font-size: 28px;
@@ -109,9 +127,9 @@ export default function BlastFreezerResultsScreen() {
             }
             th, td { 
                 border: 1px solid #E5E7EB; 
-                padding: 8px; 
+                padding: 4px; 
                 text-align: center; 
-                font-size: 12px;
+                font-size: 9px;
             }
             th { 
                 background: #F8FAFC; 
@@ -148,17 +166,105 @@ export default function BlastFreezerResultsScreen() {
             <div class="company-name">ENZO ENGINEERING SOLUTIONS</div>
             <div class="powered-by">⚡ Powered by Enzo CoolCalc</div>
             <div class="title">❄️ BLAST FREEZER COOLING LOAD CALCULATION REPORT</div>
-            <p>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+            <p style="margin: 5px 0; font-size: 10px;">Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
         </div>
 
-        <div class="main-result">
-            <div class="main-value">${results.loadSummary.finalLoadTR.toFixed(2)} TR</div>
-            <div>Required Cooling Capacity</div>
-            <div style="margin-top: 10px;">
-                <div>Power: ${results.loadSummary.finalLoadKW.toFixed(2)} kW</div>
-                <div>Daily Energy: ${results.dailyEnergyConsumption?.toFixed(1) || '0.0'} kWh</div>
-                <div>Heat Removal: ${results.totalBTU?.toFixed(0) || '0'} BTU/hr</div>
-                <div>Safety Factor: ${results.loadSummary.safetyPercentage.toFixed(0)}%</div>
+        <div class="section">
+            <div class="section-title">📋 INPUT PARAMETERS</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <div style="background: #FEF2F2; color: #B91C1C; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #DC2626;">🏗️ Room Construction</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Dimensions:</strong> ${results.dimensions?.length || 'N/A'}m × ${results.dimensions?.breadth || 'N/A'}m × ${results.dimensions?.height || 'N/A'}m</div>
+                        <div><strong>Volume:</strong> ${results.volume?.toFixed(1) || 'N/A'} m³</div>
+                        <div><strong>Door:</strong> ${results.doorDimensions?.width || 'N/A'}m × ${results.doorDimensions?.height || 'N/A'}m</div>
+                        <div><strong>Wall Area:</strong> ${results.areas?.walls?.toFixed(1) || 'N/A'} m²</div>
+                        <div><strong>Ceiling Area:</strong> ${results.areas?.ceiling?.toFixed(1) || 'N/A'} m²</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #FEF2F2; color: #B91C1C; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #DC2626;">🌡️ Operating Conditions</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Ambient Temp:</strong> ${results.roomData?.ambientTemp || results.conditions?.ambientTemp || 35}°C</div>
+                        <div><strong>Room Temp:</strong> ${results.roomData?.roomTemp || results.conditions?.roomTemp || -35}°C</div>
+                        <div><strong>ΔT:</strong> ${results.temperatureDifference?.toFixed(0) || 70}°C</div>
+                        <div><strong>Batch Hours:</strong> ${results.batchHours || results.roomData?.batchHours || 8}h</div>
+                        <div><strong>Operating Hours:</strong> ${results.roomData?.operatingHours || 24}h/day</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <div style="background: #FEF2F2; color: #B91C1C; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #DC2626;">🔧 Insulation Details</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Type:</strong> ${results.construction.insulationType || 'PUF'}</div>
+                        <div><strong>Wall Thickness:</strong> ${results.construction.wallThickness || 150}mm</div>
+                        <div><strong>Ceiling Thickness:</strong> ${results.construction.ceilingThickness || 150}mm</div>
+                        <div><strong>Floor Thickness:</strong> ${results.construction.floorThickness || 150}mm</div>
+                        <div><strong>U-Factor:</strong> ${results.construction.uFactor ? results.construction.uFactor.toFixed(3) : 'N/A'} W/m²K</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #FEF2F2; color: #B91C1C; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #DC2626;">🥩 Product Information</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Type:</strong> ${results.productInfo?.type || 'Chicken'}</div>
+                        <div><strong>Capacity/Batch:</strong> ${results.productInfo?.mass || 2000} kg</div>
+                        <div><strong>Incoming Temp:</strong> ${results.productInfo?.incomingTemp || -5}°C</div>
+                        <div><strong>Outgoing Temp:</strong> ${results.productInfo?.outgoingTemp || -30}°C</div>
+                        <div><strong>Storage Capacity:</strong> ${results.storageCapacity?.density || 4} kg/m³</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <div style="background: #FEF2F2; color: #B91C1C; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #DC2626;">🔥 Heater Configuration</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Peripheral:</strong> ${results.roomData?.peripheralHeatersQty || 1} × ${results.roomData?.peripheralHeatersCapacity || 1.5}kW</div>
+                        <div><strong>Door:</strong> ${results.roomData?.doorHeatersQty || 1} × ${results.roomData?.doorHeatersCapacity || 0.27}kW</div>
+                        <div><strong>Tray:</strong> ${results.roomData?.trayHeatersQty || 1} × ${results.roomData?.trayHeatersCapacity || 2.2}kW</div>
+                        <div><strong>Drain:</strong> ${results.roomData?.drainHeatersQty || 1} × ${results.roomData?.drainHeatersCapacity || 0.04}kW</div>
+                        <div><strong>Total Heater Load:</strong> ${results.equipmentSummary?.totalHeaterLoad?.toFixed(2) || 'N/A'}kW</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #FEF2F2; color: #B91C1C; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #DC2626;">📊 Load Summary</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Transmission:</strong> ${results.breakdown?.transmission?.total?.toFixed(2) || 'N/A'}kW</div>
+                        <div><strong>Product Load:</strong> ${((results.breakdown?.product?.total || 0) * 3.517).toFixed(2)}kW</div>
+                        <div><strong>Air Infiltration:</strong> ${((results.breakdown?.airChange?.loadTR || 0) * 3.517).toFixed(2)}kW</div>
+                        <div><strong>Internal Loads:</strong> ${((results.breakdown?.internal?.total || 0) * 3.517).toFixed(2)}kW</div>
+                        <div><strong>Safety Factor:</strong> ${results.loadSummary?.safetyPercentage?.toFixed(0) || 5}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="main-result">
+                <div class="main-value">${results.loadSummary.finalLoadTR ? results.loadSummary.finalLoadTR.toFixed(2) : 'N/A'} TR</div>
+                <div style="font-size: 12px; margin-bottom: 8px;">Required Cooling Capacity</div>
+                <div style="font-size: 10px;">
+                    <div>Power: ${results.loadSummary.finalLoadKW ? results.loadSummary.finalLoadKW.toFixed(2) : 'N/A'} kW</div>
+                    <div>Daily Energy: ${results.dailyEnergyConsumption?.toFixed(1) || '0.0'} kWh</div>
+                    <div>Heat Removal: ${results.totalBTU?.toFixed(0) || '0'} BTU/hr</div>
+                    <div>Safety Factor: ${results.loadSummary.safetyPercentage ? results.loadSummary.safetyPercentage.toFixed(0) : 5}%</div>
+                </div>
+            </div>
+            
+                <div style="background: linear-gradient(135deg, #DC2626, #B91C1C); color: white; padding: 12px; border-radius: 8px; font-size: 10px;">
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px;">Blast Freezing Performance</div>
+                <div>Base Load: ${results.loadSummary?.baseLoadTR?.toFixed(2) || 'N/A'} TR</div>
+                <div>Batch Capacity: ${results.productInfo?.mass || 2000} kg</div>
+                <div>Freezing Time: ${results.batchHours || results.roomData?.batchHours || 8}h</div>
+                <div>Air Flow: ${results.roomData?.airFlowPerFan || 4000} CFM</div>
+                <div>Temperature Drop: ${results.temperatureDifference?.toFixed(0) || 70}°C</div>
+                <div>System Type: Blast Freezer</div>
             </div>
         </div>
 
@@ -169,23 +275,23 @@ export default function BlastFreezerResultsScreen() {
                 <div class="subsection-title">🏗️ Room Construction</div>
                 <div class="info-box">
                     <div><strong>Room Dimensions:</strong></div>
-                    <div>• Length: ${results.dimensions.length} m</div>
-                    <div>• Breadth: ${results.dimensions.breadth} m</div>
-                    <div>• Height: ${results.dimensions.height} m</div>
-                    <div>• Total Volume: ${results.volume.toFixed(1)} m³</div>
+                    <div>• Length: ${results.dimensions?.length || 'N/A'} m</div>
+                    <div>• Breadth: ${results.dimensions?.breadth || 'N/A'} m</div>
+                    <div>• Height: ${results.dimensions?.height || 'N/A'} m</div>
+                    <div>• Total Volume: ${results.volume?.toFixed(1) || 'N/A'} m³</div>
                 </div>
                 <div class="info-box">
                     <div><strong>Door Specifications:</strong></div>
-                    <div>• Door Width: ${results.doorDimensions.width} m</div>
-                    <div>• Door Height: ${results.doorDimensions.height} m</div>
+                    <div>• Door Width: ${results.doorDimensions?.width || 'N/A'} m</div>
+                    <div>• Door Height: ${results.doorDimensions?.height || 'N/A'} m</div>
                 </div>
                 <div class="info-box">
                     <div><strong>Insulation Details:</strong></div>
-                    <div>• Insulation Type: ${results.construction.type}</div>
-                    <div>• Wall Thickness: ${results.construction.wallThickness} mm</div>
-                    <div>• Ceiling Thickness: ${results.construction.ceilingThickness} mm</div>
-                    <div>• Floor Thickness: ${results.construction.floorThickness} mm</div>
-                    <div>• Internal Floor: ${results.construction.internalFloorThickness} mm</div>
+                    <div>• Insulation Type: ${results.construction?.type || 'PUF'}</div>
+                    <div>• Wall Thickness: ${results.construction?.wallThickness || 150} mm</div>
+                    <div>• Ceiling Thickness: ${results.construction?.ceilingThickness || 150} mm</div>
+                    <div>• Floor Thickness: ${results.construction?.floorThickness || 150} mm</div>
+                    <div>• Internal Floor: ${results.construction?.internalFloorThickness || 150} mm</div>
                 </div>
             </div>
 
@@ -250,38 +356,38 @@ export default function BlastFreezerResultsScreen() {
                 </tr>
                 <tr>
                     <td>Transmission Load</td>
-                    <td>${results.breakdown.transmission.total.toFixed(2)}</td>
-                    <td>${results.breakdown.transmission.totalTR.toFixed(3)}</td>
+                    <td>${results.breakdown?.transmission?.total?.toFixed(2) || '0.00'}</td>
+                    <td>${results.breakdown?.transmission?.totalTR?.toFixed(3) || '0.000'}</td>
                 </tr>
                 <tr>
                     <td>Product Load</td>
-                    <td>${(results.breakdown.product.total * 3.517).toFixed(2)}</td>
-                    <td>${results.breakdown.product.total.toFixed(3)}</td>
+                    <td>${((results.breakdown?.product?.total || 0) * 3.517).toFixed(2)}</td>
+                    <td>${results.breakdown?.product?.total?.toFixed(3) || '0.000'}</td>
                 </tr>
                 <tr>
                     <td>Air Change Load</td>
-                    <td>${results.breakdown.airChange.loadKW?.toFixed(2) || '0.00'}</td>
-                    <td>${results.breakdown.airChange.loadTR.toFixed(3)}</td>
+                    <td>${results.breakdown?.airChange?.loadKW?.toFixed(2) || '0.00'}</td>
+                    <td>${results.breakdown?.airChange?.loadTR?.toFixed(3) || '0.000'}</td>
                 </tr>
                 <tr>
                     <td>Internal Load</td>
-                    <td>${(results.breakdown.internal.total * 3.517).toFixed(2)}</td>
-                    <td>${results.breakdown.internal.total.toFixed(3)}</td>
+                    <td>${((results.breakdown?.internal?.total || 0) * 3.517).toFixed(2)}</td>
+                    <td>${results.breakdown?.internal?.total?.toFixed(3) || '0.000'}</td>
                 </tr>
                 <tr>
                     <td>Total Calculated</td>
-                    <td>${results.loadSummary.totalCalculatedKW.toFixed(2)}</td>
-                    <td>${results.loadSummary.totalCalculatedTR.toFixed(3)}</td>
+                    <td>${results.loadSummary?.totalCalculatedKW?.toFixed(2) || '0.00'}</td>
+                    <td>${results.loadSummary?.totalCalculatedTR?.toFixed(3) || '0.000'}</td>
                 </tr>
                 <tr>
                     <td>Safety Factor (5%)</td>
-                    <td>${results.loadSummary.safetyFactorKW.toFixed(2)}</td>
-                    <td>${results.loadSummary.safetyFactorTR.toFixed(3)}</td>
+                    <td>${results.loadSummary?.safetyFactorKW?.toFixed(2) || '0.00'}</td>
+                    <td>${results.loadSummary?.safetyFactorTR?.toFixed(3) || '0.000'}</td>
                 </tr>
                 <tr class="final-row">
                     <td><strong>FINAL CAPACITY REQUIRED</strong></td>
-                    <td><strong>${results.loadSummary.finalLoadKW.toFixed(2)}</strong></td>
-                    <td><strong>${results.loadSummary.finalLoadTR.toFixed(2)}</strong></td>
+                    <td><strong>${results.loadSummary?.finalLoadKW?.toFixed(2) || 'N/A'}</strong></td>
+                    <td><strong>${results.loadSummary?.finalLoadTR?.toFixed(2) || 'N/A'}</strong></td>
                 </tr>
             </table>
         </div>
@@ -298,37 +404,48 @@ export default function BlastFreezerResultsScreen() {
   };
 
   const handleShare = async () => {
+    console.log('Blast Freezer - handleShare called, Print available:', !!Print, 'Sharing available:', !!Sharing);
     try {
       // Try to generate PDF first if packages are available
       if (Print && Sharing) {
+        console.log('Blast Freezer - Attempting PDF generation...');
         try {
           const htmlContent = generateHTMLReport();
+          console.log('Blast Freezer - Generated HTML content length:', htmlContent.length);
           const { uri } = await Print.printToFileAsync({
             html: htmlContent,
             base64: false
           });
+          console.log('Blast Freezer - PDF generated successfully:', uri);
           
           if (await Sharing.isAvailableAsync()) {
+            console.log('Blast Freezer - Sharing PDF file:', uri);
             await Sharing.shareAsync(uri, {
               mimeType: 'application/pdf',
               dialogTitle: 'Share Blast Freezer Load Calculation Report',
               UTI: 'com.adobe.pdf'
             });
+            console.log('Blast Freezer - PDF shared successfully');
             return;
+          } else {
+            console.log('Blast Freezer - Sharing not available, falling back to text');
           }
         } catch (pdfError) {
-          console.log('PDF generation failed, falling back to text:', pdfError);
+          console.log('Blast Freezer - PDF generation failed, falling back to text:', pdfError);
+          console.error('Blast Freezer - PDF Error details:', (pdfError as Error).message || pdfError);
         }
       }
       
       // Fallback to text sharing
+      console.log('Blast Freezer - Using text sharing fallback');
       const content = generateTextReport();
       await Share.share({
         message: content,
         title: 'Blast Freezer Load Calculation Report'
       });
+      console.log('Blast Freezer - Text report shared successfully');
     } catch (error) {
-      console.error('Share error:', error);
+      console.error('Blast Freezer - Share error:', error);
       Alert.alert('Error', 'Failed to share report');
     }
   };

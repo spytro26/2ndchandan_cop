@@ -34,60 +34,58 @@ export default function ResultsScreen() {
         <style>
             body { 
                 font-family: Arial, sans-serif; 
-                margin: 20px; 
-                line-height: 1.4; 
+                margin: 12px; 
+                line-height: 1.3; 
                 color: #333;
+                font-size: 11px;
             }
             .header { 
-                text-align: center; 
-                margin-bottom: 30px; 
-                border-bottom: 2px solid #3B82F6; 
-                padding-bottom: 20px;
+                background: linear-gradient(135deg, #3B82F6, #1E40AF); 
+                color: white; 
+                padding: 12px; 
+                text-align: center;
+                margin-bottom: 10px;
+                border-radius: 8px;
             }
             .company-name {
-                font-size: 28px;
+                font-size: 16px;
                 font-weight: bold;
-                color: #1E3A8A;
-                margin-bottom: 5px;
-                letter-spacing: 2px;
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+                margin-bottom: 3px;
             }
             .powered-by {
-                font-size: 16px;
-                color: #3B82F6;
-                margin-bottom: 15px;
-                font-weight: 600;
+                font-size: 10px;
+                margin-bottom: 6px;
+                opacity: 0.9;
             }
             .title { 
-                font-size: 24px; 
+                font-size: 14px; 
                 font-weight: bold; 
-                color: #1E3A8A; 
-                margin: 10px 0;
+                margin-bottom: 5px;
             }
             .main-result { 
-                background: linear-gradient(135deg, #1E3A8A, #3B82F6); 
+                background: linear-gradient(135deg, #10B981, #059669); 
                 color: white; 
-                padding: 20px; 
-                border-radius: 10px; 
-                text-align: center; 
-                margin: 20px 0;
+                padding: 12px; 
+                border-radius: 8px; 
+                text-align: center;
             }
             .main-value { 
-                font-size: 32px; 
+                font-size: 20px; 
                 font-weight: bold; 
-                margin: 10px 0;
+                margin: 6px 0;
             }
             .section { 
-                margin: 20px 0; 
+                margin: 8px 0; 
                 page-break-inside: avoid;
             }
             .section-title { 
-                font-size: 18px; 
+                background: #3B82F6; 
+                color: white; 
+                padding: 6px 10px; 
                 font-weight: bold; 
-                color: #1E3A8A; 
-                border-bottom: 1px solid #E5E7EB; 
-                padding-bottom: 5px; 
-                margin-bottom: 15px;
+                font-size: 11px;
+                margin-bottom: 6px;
+                border-radius: 4px;
             }
             .subsection {
                 margin-bottom: 20px;
@@ -103,15 +101,15 @@ export default function ResultsScreen() {
             table { 
                 width: 100%; 
                 border-collapse: collapse; 
-                margin: 10px 0;
+                margin: 4px 0;
                 background: white;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                font-size: 9px;
             }
             th, td { 
                 border: 1px solid #E5E7EB; 
-                padding: 8px; 
+                padding: 4px; 
                 text-align: center; 
-                font-size: 12px;
+                font-size: 9px;
             }
             th { 
                 background: #F8FAFC; 
@@ -148,17 +146,104 @@ export default function ResultsScreen() {
             <div class="company-name">ENZO ENGINEERING SOLUTIONS</div>
             <div class="powered-by">⚡ Powered by Enzo CoolCalc</div>
             <div class="title">🌡️ FREEZER COOLING LOAD CALCULATION REPORT</div>
-            <p>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+            <p style="margin: 5px 0; font-size: 10px;">Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
         </div>
 
-        <div class="main-result">
-            <div class="main-value">${results.loadSummary.finalLoad.toFixed(2)} kW</div>
-            <div>Required Cooling Capacity</div>
-            <div style="margin-top: 10px;">
-                <div>Refrigeration: ${results.totalTR.toFixed(2)} TR</div>
-                <div>Daily Energy: ${(results.loadSummary.finalLoad * 24).toFixed(1)} kWh</div>
-                <div>Heat Removal: ${results.totalBTU.toFixed(0)} BTU/hr</div>
-                <div>SHR: ${results.loadSummary.SHR.toFixed(3)}</div>
+        <div class="section">
+            <div class="section-title">📋 INPUT PARAMETERS</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #3B82F6;">🏗️ Room Construction</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Dimensions:</strong> ${results.dimensions.length}m × ${results.dimensions.width}m × ${results.dimensions.height}m</div>
+                        <div><strong>Volume:</strong> ${results.volume.toFixed(1)} m³</div>
+                        <div><strong>Door:</strong> ${results.doorDimensions.width}m × ${results.doorDimensions.height}m</div>
+                        <div><strong>Door Openings:</strong> ${results.roomData?.doorOpenings || 'N/A'}/day</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #3B82F6;">🌡️ Operating Conditions</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>External Temp:</strong> ${results.conditions?.externalTemp || 35}°C</div>
+                        <div><strong>Internal Temp:</strong> ${results.conditions?.internalTemp || -18}°C</div>
+                        <div><strong>ΔT:</strong> ${results.temperatureDifference.toFixed(0)}°C</div>
+                        <div><strong>Operating Hours:</strong> ${results.conditions?.operatingHours || 24}h/day</div>
+                        <div><strong>Pull Down Time:</strong> ${results.conditions?.pullDownTime || 10}h</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #3B82F6;">🔧 Insulation Details</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Type:</strong> ${results.construction?.type || 'PUF'}</div>
+                        <div><strong>Wall Thickness:</strong> ${results.construction?.thickness || 150}mm</div>
+                        <div><strong>Floor Thickness:</strong> ${results.roomData?.internalFloorThickness || 150}mm</div>
+                        <div><strong>U-Factor:</strong> ${(results.construction?.uFactor || 0.17).toFixed(3)} W/m²K</div>
+                        <div><strong>Number of Floors:</strong> ${results.roomData?.numberOfFloors || 1}</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #3B82F6;">🥩 Product Information</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Type:</strong> ${results.productData?.productType || 'General Food Items'}</div>
+                        <div><strong>Daily Load:</strong> ${results.productData?.dailyLoad || 1000} kg/day</div>
+                        <div><strong>Incoming Temp:</strong> ${results.productData?.incomingTemp || 25}°C</div>
+                        <div><strong>Outgoing Temp:</strong> ${results.productData?.outgoingTemp || -18}°C</div>
+                        <div><strong>Storage Type:</strong> ${results.productData?.storageType || 'Boxed'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #3B82F6;">👥 Personnel & Equipment</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Number of People:</strong> ${results.productData?.numberOfPeople || 2}</div>
+                        <div><strong>Working Hours:</strong> ${results.productData?.workingHours || 4}h/day</div>
+                        <div><strong>Lighting:</strong> ${results.productData?.lightingWattage || 150}W</div>
+                        <div><strong>Equipment Load:</strong> ${results.productData?.equipmentLoad || 300}W</div>
+                        <div><strong>Fan Motor:</strong> ${results.productData?.fanMotorRating || 0.37}kW</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="background: #EBF8FF; color: #1E40AF; padding: 4px 8px; font-weight: bold; font-size: 10px; margin-bottom: 4px; border-left: 3px solid #3B82F6;">🔥 Heaters & Others</div>
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; padding: 6px; border-radius: 4px; font-size: 9px;">
+                        <div><strong>Door Heaters:</strong> ${results.productData?.doorHeatersLoad || 0.24}kW</div>
+                        <div><strong>Defrost Heaters:</strong> ${results.productData?.defrostHeatersLoad || 0}kW</div>
+                        <div><strong>Air Flow/Fan:</strong> ${results.conditions?.airFlowPerFan || 2000}CFM</div>
+                        <div><strong>Humidity:</strong> ${results.conditions?.roomHumidity || 85}%</div>
+                        <div><strong>Humidifier Load:</strong> ${results.conditions?.steamHumidifierLoad || 0}kW</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="main-result">
+                <div class="main-value">${results.loadSummary.finalLoad.toFixed(2)} kW</div>
+                <div style="font-size: 12px; margin-bottom: 8px;">Required Cooling Capacity</div>
+                <div style="font-size: 10px;">
+                    <div>Refrigeration: ${results.totalTR.toFixed(2)} TR</div>
+                    <div>Daily Energy: ${(results.loadSummary.finalLoad * 24).toFixed(1)} kWh</div>
+                    <div>Heat Removal: ${results.totalBTU.toFixed(0)} BTU/hr</div>
+                    <div>SHR: ${results.loadSummary.SHR.toFixed(3)}</div>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #1E3A8A, #3B82F6); color: white; padding: 12px; border-radius: 8px; font-size: 10px;">
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px;">Load Summary</div>
+                <div>Transmission: ${results.breakdown.transmission.total.toFixed(2)} kW</div>
+                <div>Product Load: ${results.breakdown.product.total.toFixed(2)} kW</div>
+                <div>Air Change: ${results.breakdown.airChange.load.toFixed(2)} kW</div>
+                <div>Door Opening: ${results.breakdown.doorOpening.total.toFixed(2)} kW</div>
+                <div>Internal Loads: ${results.breakdown.internal.total.toFixed(2)} kW</div>
+                <div>Safety Factor: ${results.loadSummary.safetyFactor}%</div>
             </div>
         </div>
 
