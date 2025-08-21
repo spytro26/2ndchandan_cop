@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1016078028020",
+    "project_id": "coolcalc-1e56f",
+    "storage_bucket": "coolcalc-1e56f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1016078028020:android:7bec5043017e9a1036a2a1",
+        "android_client_info": {
+          "package_name": "com.risabh.coldroom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCftbYP8HenGkOUHdsX9ihfAHPIVsO90I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
