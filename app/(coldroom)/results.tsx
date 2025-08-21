@@ -717,203 +717,202 @@ Professional Refrigeration Load Calculation System
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📊 SUMMARY</Text>
+          <Text style={styles.sectionTitle}>📊 TRANSMISSION LOADS</Text>
           
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Total Cooling Capacity:</Text>
-              <Text style={styles.summaryValue}>{results.finalLoad.toFixed(2)} kW</Text>
+          <View style={styles.tableCard}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { flex: 2 }]}>Surface</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>Area(m²)</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>U-factor</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>ΔT</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Load(kJ/day)</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>kW</Text>
             </View>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Refrigeration Capacity:</Text>
-              <Text style={styles.summaryValue}>{results.totalTR.toFixed(2)} TR</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 2 }]}>Walls</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.areas.wall ? results.areas.wall.toFixed(1) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.construction.uFactor ? results.construction.uFactor.toFixed(2) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.temperatureDifference.toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1.5 }]}>{results.breakdown?.transmission?.wallsKJDay?.toFixed(0) || 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.transmission.walls.toFixed(2)}</Text>
             </View>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Daily Energy:</Text>
-              <Text style={styles.summaryValue}>{results.dailyKJ?.toFixed(0) || '0'} kJ/24Hr</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 2 }]}>Ceiling</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.areas.ceiling ? results.areas.ceiling.toFixed(1) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.construction.uFactor ? results.construction.uFactor.toFixed(2) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.temperatureDifference.toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1.5 }]}>{results.breakdown?.transmission?.ceilingKJDay?.toFixed(0) || 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.transmission.ceiling.toFixed(2)}</Text>
             </View>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Daily Energy:</Text>
-              <Text style={styles.summaryValue}>{(results.finalLoad * 24).toFixed(1)} kWh</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 2 }]}>Floor</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.areas.floor ? results.areas.floor.toFixed(1) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.construction.uFactor ? results.construction.uFactor.toFixed(2) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.temperatureDifference.toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1.5 }]}>{results.breakdown?.transmission?.floorKJDay?.toFixed(0) || 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.transmission.floor.toFixed(2)}</Text>
             </View>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Sensible Heat Ratio:</Text>
-              <Text style={styles.summaryValue}>{results.dailyLoads?.shr?.toFixed(1) || '1.0'}</Text>
+            
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={[styles.tableCellBold, { flex: 2 }]}>TOTAL TRANSMISSION</Text>
+              <Text style={[styles.tableCellBold, { flex: 1 }]}>-</Text>
+              <Text style={[styles.tableCellBold, { flex: 1 }]}>-</Text>
+              <Text style={[styles.tableCellBold, { flex: 1 }]}>-</Text>
+              <Text style={[styles.tableCellBold, { flex: 1.5 }]}>{((results.breakdown?.transmission?.wallsKJDay || 0) + (results.breakdown?.transmission?.ceilingKJDay || 0) + (results.breakdown?.transmission?.floorKJDay || 0)).toFixed(0)}</Text>
+              <Text style={[styles.tableCellBold, { flex: 1 }]}>{results.breakdown.transmission.total.toFixed(2)}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🏗️ STORAGE INFORMATION</Text>
+          <Text style={styles.sectionTitle}>🥩 PRODUCT LOADS</Text>
           
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>STORAGE CAPACITY</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Maximum Storage Capacity:</Text>
-              <Text style={styles.breakdownValue}>{results.storageInfo?.maxStorage?.toFixed(0) || '0'} kg</Text>
+          <View style={styles.tableCard}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { flex: 3 }]}>Load Component</Text>
+              <Text style={[styles.tableHeaderText, { flex: 2 }]}>Load(kJ/day)</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>kW</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Current Daily Load:</Text>
-              <Text style={styles.breakdownValue}>{results.storageInfo?.currentLoad?.toFixed(0) || '0'} kg</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Sensible Heat (Product Cooling)</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{results.breakdown?.product ? (results.breakdown.product * 24 * 3600 / 1000).toFixed(0) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.product.toFixed(2)}</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Storage Utilization:</Text>
-              <Text style={styles.breakdownValue}>{results.storageInfo?.utilization?.toFixed(1) || '0.0'}%</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Respiration Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{results.breakdown?.respiration ? (results.breakdown.respiration * 24 * 3600 / 1000).toFixed(0) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.respiration.toFixed(2)}</Text>
             </View>
-            <View style={[styles.breakdownRow, styles.subtotalRow]}>
-              <Text style={styles.subtotalLabel}>└─ Available Capacity:</Text>
-              <Text style={styles.subtotalValue}>{results.storageInfo?.availableCapacity?.toFixed(0) || '0'} kg</Text>
+            
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={[styles.tableCellBold, { flex: 3 }]}>TOTAL PRODUCT LOAD</Text>
+              <Text style={[styles.tableCellBold, { flex: 2 }]}>{((results.breakdown.product + results.breakdown.respiration) * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCellBold, { flex: 1 }]}>{(results.breakdown.product + results.breakdown.respiration).toFixed(2)}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>💨 AIR FLOW REQUIREMENTS</Text>
+          <Text style={styles.sectionTitle}>💨 AIR CHANGE & INFILTRATION</Text>
           
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>AIR CIRCULATION</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Required CFM:</Text>
-              <Text style={styles.breakdownValue}>{results.airFlowInfo?.requiredCfm?.toFixed(0) || '0'} cfm</Text>
+          <View style={styles.tableCard}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { flex: 3 }]}>Component</Text>
+              <Text style={[styles.tableHeaderText, { flex: 2 }]}>Value</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>kW</Text>
             </View>
-            <View style={[styles.breakdownRow, styles.subtotalRow]}>
-              <Text style={styles.subtotalLabel}>└─ Recommended CFM:</Text>
-              <Text style={styles.subtotalValue}>{results.airFlowInfo?.recommendedCfm?.toFixed(0) || '0'} cfm</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Air Change Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{results.breakdown?.airChange ? (results.breakdown.airChange * 24 * 3600 / 1000).toFixed(0) : 'N/A'} kJ/day</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.airChange.toFixed(2)}</Text>
+            </View>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Door Opening Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{results.breakdown?.doorOpening ? (results.breakdown.doorOpening * 24 * 3600 / 1000).toFixed(0) : 'N/A'} kJ/day</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.doorOpening.toFixed(2)}</Text>
+            </View>
+            
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={[styles.tableCellBold, { flex: 3 }]}>TOTAL AIR & INFILTRATION</Text>
+              <Text style={[styles.tableCellBold, { flex: 2 }]}>{((results.breakdown.airChange + results.breakdown.doorOpening) * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCellBold, { flex: 1 }]}>{(results.breakdown.airChange + results.breakdown.doorOpening).toFixed(2)}</Text>
             </View>
           </View>
         </View>
+
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📋 DETAILED BREAKDOWN</Text>
+          <Text style={styles.sectionTitle}>⚡ INTERNAL LOADS</Text>
           
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>TRANSMISSION LOADS</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Walls:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.transmission.walls.toFixed(3)} kW</Text>
+          <View style={styles.tableCard}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { flex: 3 }]}>Load Component</Text>
+              <Text style={[styles.tableHeaderText, { flex: 2 }]}>Load(kJ/day)</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>kW</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Ceiling:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.transmission.ceiling.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Occupancy Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{results.breakdown?.miscellaneous?.occupancy ? (results.breakdown.miscellaneous.occupancy * 24 * 3600 / 1000).toFixed(0) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.miscellaneous.occupancy.toFixed(2)}</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Floor:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.transmission.floor.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Lighting Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{results.breakdown?.miscellaneous?.lighting ? (results.breakdown.miscellaneous.lighting * 24 * 3600 / 1000).toFixed(0) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.miscellaneous.lighting.toFixed(2)}</Text>
             </View>
-            <View style={[styles.breakdownRow, styles.subtotalRow]}>
-              <Text style={styles.subtotalLabel}>└─ Subtotal:</Text>
-              <Text style={styles.subtotalValue}>{results.breakdown.transmission.total.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Equipment Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{results.breakdown?.miscellaneous?.equipment ? (results.breakdown.miscellaneous.equipment * 24 * 3600 / 1000).toFixed(0) : 'N/A'}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.miscellaneous.equipment.toFixed(2)}</Text>
             </View>
-          </View>
-
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>PRODUCT LOADS</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Sensible Heat:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.product.toFixed(3)} kW</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>└─ Respiration:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.respiration.toFixed(3)} kW</Text>
-            </View>
-            <View style={[styles.breakdownRow, styles.subtotalRow]}>
-              <Text style={styles.subtotalLabel}>└─ Subtotal:</Text>
-              <Text style={styles.subtotalValue}>{(results.breakdown.product + results.breakdown.respiration).toFixed(3)} kW</Text>
+            
+            <View style={[styles.tableRow, styles.totalRow]}>
+              <Text style={[styles.tableCellBold, { flex: 3 }]}>TOTAL INTERNAL</Text>
+              <Text style={[styles.tableCellBold, { flex: 2 }]}>{(results.breakdown.miscellaneous.total * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCellBold, { flex: 1 }]}>{results.breakdown.miscellaneous.total.toFixed(2)}</Text>
             </View>
           </View>
+        </View>
 
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>AIR & INFILTRATION</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Air Change Load:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.airChange.toFixed(3)} kW</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>📈 FINAL SUMMARY</Text>
+          
+          <View style={styles.tableCard}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { flex: 3 }]}>Load Type</Text>
+              <Text style={[styles.tableHeaderText, { flex: 2 }]}>Load(kJ/day)</Text>
+              <Text style={[styles.tableHeaderText, { flex: 1 }]}>kW</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Door Opening:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.doorOpening.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Transmission Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{(results.breakdown.transmission.total * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.transmission.total.toFixed(2)}</Text>
             </View>
-            <View style={[styles.breakdownRow, styles.subtotalRow]}>
-              <Text style={styles.subtotalLabel}>└─ Subtotal:</Text>
-              <Text style={styles.subtotalValue}>{(results.breakdown.airChange + results.breakdown.doorOpening).toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Product Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{((results.breakdown.product + results.breakdown.respiration) * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{(results.breakdown.product + results.breakdown.respiration).toFixed(2)}</Text>
             </View>
-          </View>
-
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>INTERNAL LOADS</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Occupancy:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.miscellaneous.occupancy.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Air & Infiltration</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{((results.breakdown.airChange + results.breakdown.doorOpening) * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{(results.breakdown.airChange + results.breakdown.doorOpening).toFixed(2)}</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Lighting:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.miscellaneous.lighting.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Internal Loads</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{(results.breakdown.miscellaneous.total * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.breakdown.miscellaneous.total.toFixed(2)}</Text>
             </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Equipment:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.miscellaneous.equipment.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Total Load</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{(results.totalBeforeSafety * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.totalBeforeSafety.toFixed(2)}</Text>
             </View>
-            <View style={[styles.breakdownRow, styles.subtotalRow]}>
-              <Text style={styles.subtotalLabel}>└─ Subtotal:</Text>
-              <Text style={styles.subtotalValue}>{results.breakdown.miscellaneous.total.toFixed(3)} kW</Text>
+            
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 3 }]}>Safety Factor (10%)</Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{(results.safetyFactorLoad * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCell, { flex: 1 }]}>{results.safetyFactorLoad.toFixed(2)}</Text>
             </View>
-          </View>
-
-          <View style={styles.breakdownCard}>
-            <Text style={styles.breakdownTitle}>HEATER LOADS</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Peripheral Heaters:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.heaters?.peripheral?.toFixed(3) || '0.000'} kW</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Door Heaters:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.heaters?.door?.toFixed(3) || '0.000'} kW</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Steam Humidifiers:</Text>
-              <Text style={styles.breakdownValue}>{results.breakdown.heaters?.steam?.toFixed(3) || '0.000'} kW</Text>
-            </View>
-            <View style={[styles.breakdownRow, styles.subtotalRow]}>
-              <Text style={styles.subtotalLabel}>└─ Subtotal:</Text>
-              <Text style={styles.subtotalValue}>{results.breakdown.heaters?.total?.toFixed(3) || '0.000'} kW</Text>
-            </View>
-          </View>
-
-          <View style={styles.finalCard}>
-            <Text style={styles.finalTitle}>FINAL CALCULATION</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Total Calculated:</Text>
-              <Text style={styles.breakdownValue}>{results.totalBeforeSafety.toFixed(3)} kW</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Safety Factor (10%):</Text>
-              <Text style={styles.breakdownValue}>+{results.safetyFactorLoad.toFixed(3)} kW</Text>
-            </View>
-            <View style={[styles.breakdownRow, styles.finalRow]}>
-              <Text style={styles.finalLabel}>└─ REQUIRED CAPACITY:</Text>
-              <Text style={styles.finalValue}>{results.finalLoad.toFixed(2)} kW</Text>
-            </View>
-          </View>
-
-          <View style={styles.conversionsCard}>
-            <Text style={styles.conversionsTitle}>CONVERSIONS</Text>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Refrigeration:</Text>
-              <Text style={styles.breakdownValue}>{results.totalTR.toFixed(2)} TR</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Heat Removal:</Text>
-              <Text style={styles.breakdownValue}>{results.totalBTU.toFixed(0)} BTU/hr</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Daily Load:</Text>
-              <Text style={styles.breakdownValue}>{results.dailyKJ?.toFixed(0) || '0'} kJ/24Hr</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>├─ Sensible Heat Ratio:</Text>
-              <Text style={styles.breakdownValue}>{results.dailyLoads?.shr?.toFixed(1) || '1.0'}</Text>
-            </View>
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownLabel}>└─ Air Qty Required:</Text>
-              <Text style={styles.breakdownValue}>{results.airFlowInfo?.requiredCfm?.toFixed(0) || '0'} cfm</Text>
+            
+            <View style={[styles.tableRow, styles.finalRow]}>
+              <Text style={[styles.tableCellFinal, { flex: 3 }]}>FINAL CAPACITY REQUIRED</Text>
+              <Text style={[styles.tableCellFinal, { flex: 2 }]}>{(results.finalLoad * 24 * 3600 / 1000).toFixed(0)}</Text>
+              <Text style={[styles.tableCellFinal, { flex: 1 }]}>{results.finalLoad.toFixed(2)}</Text>
             </View>
           </View>
         </View>
@@ -999,7 +998,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: '#DBEAFE',
+    backgroundColor: '#EBF8FF',
     borderRadius: 10,
     gap: 8,
     elevation: 2,
@@ -1065,31 +1064,7 @@ const styles = StyleSheet.create({
     color: '#1E3A8A',
     marginBottom: 16,
   },
-  summaryCard: {
-    backgroundColor: '#EBF8FF',
-    borderRadius: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#3B82F6',
-    marginBottom: 12,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 4,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    color: '#1E3A8A',
-    fontWeight: '500',
-  },
-  summaryValue: {
-    fontSize: 14,
-    color: '#3B82F6',
-    fontWeight: '600',
-  },
-  breakdownCard: {
+  tableCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
@@ -1100,89 +1075,56 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  breakdownTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1E3A8A',
-    marginBottom: 12,
-  },
-  breakdownRow: {
+  tableHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#3B82F6',
+    marginBottom: 8,
   },
-  subtotalRow: {
+  tableHeaderText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1E3A8A',
+    textAlign: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  totalRow: {
+    borderBottomWidth: 0,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
-    marginTop: 8,
-    paddingTop: 12,
-  },
-  breakdownLabel: {
-    fontSize: 13,
-    color: '#64748B',
-    flex: 1,
-    fontFamily: 'monospace',
-  },
-  breakdownValue: {
-    fontSize: 13,
-    color: '#1E293B',
-    fontWeight: '600',
-  },
-  subtotalLabel: {
-    fontSize: 14,
-    color: '#1E3A8A',
-    fontWeight: '600',
-    fontFamily: 'monospace',
-  },
-  subtotalValue: {
-    fontSize: 14,
-    color: '#3B82F6',
-    fontWeight: '700',
-  },
-  finalCard: {
-    backgroundColor: '#EBF8FF',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: '#3B82F6',
-    marginBottom: 12,
-  },
-  finalTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1E3A8A',
-    marginBottom: 12,
+    marginTop: 4,
+    paddingTop: 8,
   },
   finalRow: {
     borderTopWidth: 2,
     borderTopColor: '#3B82F6',
+    backgroundColor: '#EBF8FF',
     marginTop: 8,
     paddingTop: 12,
+    borderRadius: 8,
   },
-  finalLabel: {
-    fontSize: 15,
+  tableCell: {
+    fontSize: 11,
+    color: '#64748B',
+    textAlign: 'center',
+  },
+  tableCellBold: {
+    fontSize: 12,
     color: '#1E3A8A',
-    fontWeight: '700',
-    fontFamily: 'monospace',
+    fontWeight: '600',
+    textAlign: 'center',
   },
-  finalValue: {
-    fontSize: 15,
+  tableCellFinal: {
+    fontSize: 13,
     color: '#3B82F6',
     fontWeight: '700',
-  },
-  conversionsCard: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#10B981',
-  },
-  conversionsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#065F46',
-    marginBottom: 12,
+    textAlign: 'center',
   },
   infoCard: {
     backgroundColor: '#F8FAFC',
