@@ -89,35 +89,42 @@ export function calculateColdRoomLoad(
   const product = COLD_ROOM_PRODUCTS[productData.productType as keyof typeof COLD_ROOM_PRODUCTS] || COLD_ROOM_PRODUCTS["BANANA"];
   const storageFactor = STORAGE_FACTORS[productData.storageType as keyof typeof STORAGE_FACTORS] || STORAGE_FACTORS["Palletized"];
   
-  // EXCEL EXACT FORMULA: Transmission Load (Q = U × A × ΔT × hrs / 1000)
+  // EXCEL EXACT FORMULA: Transmission Load (Q = U × A × ΔT × hrs / 24 / 1000)
   const calculateTransmissionLoad = () => {
     const tempDiff = temperatureDifference;
     const hours = operatingHours;
     
     // Excel exact U-factors
-    const wallLoad = (COLD_ROOM_EXCEL_CONSTANTS.uFactorWall * wallArea * tempDiff * hours) / 1000;
-    const ceilingLoad = (COLD_ROOM_EXCEL_CONSTANTS.uFactorCeiling * ceilingArea * tempDiff * hours) / 1000;
-    const floorLoad = (COLD_ROOM_EXCEL_CONSTANTS.uFactorFloor * floorArea * tempDiff * hours) / 1000;
+    const wallLoad = (COLD_ROOM_EXCEL_CONSTANTS.uFactorWall * wallArea * tempDiff * hours) / 24 / 1000;
+    const ceilingLoad = (COLD_ROOM_EXCEL_CONSTANTS.uFactorCeiling * ceilingArea * tempDiff * hours) / 24 / 1000;
+    const floorLoad = (COLD_ROOM_EXCEL_CONSTANTS.uFactorFloor * floorArea * tempDiff * hours) / 24 / 1000;
     
     return {
       walls: wallLoad,
       ceiling: ceilingLoad,
       floor: floorLoad,
-      total: wallLoad + ceilingLoad + floorLoad
+      total: wallLoad + ceilingLoad + floorLoad,
+      // For detailed display (kJ/day)
+      wallsKJDay: COLD_ROOM_EXCEL_CONSTANTS.uFactorWall * wallArea * tempDiff * hours,
+      ceilingKJDay: COLD_ROOM_EXCEL_CONSTANTS.uFactorCeiling * ceilingArea * tempDiff * hours,
+      floorKJDay: COLD_ROOM_EXCEL_CONSTANTS.uFactorFloor * floorArea * tempDiff * hours
     };
   };
   
-  // EXCEL EXACT FORMULA: Product Load ((Mass × Cp × ΔT) / PullDownTime / 1000)
+  // EXCEL EXACT FORMULA: Product Load ((Mass × Cp × ΔT) / PullDownTime / 3.6)
   const calculateProductLoad = () => {
     const mass = dailyLoad;           // Excel: 4000 kg
     const cp = specificHeatAbove;     // Excel: 4.1 kJ/kg·K  
     const tempDiff = incomingTemp - outgoingTemp; // Excel: 30-2 = 28°C
     const pullDownHours = pullDownTime;      // Excel: 24 hours
     
-    // EXCEL FORMULA: (Mass × Cp × ΔT) ÷ PullDownTime ÷ 1000
-    const productLoad = (mass * cp * tempDiff) / pullDownHours / 1000;
+    // EXCEL FORMULA: (Mass × Cp × ΔT) ÷ PullDownTime ÷ 3.6
+    const productLoadKW = (mass * cp * tempDiff) / pullDownHours / 3.6;
     
-    return productLoad; // Should show ~19.07 kW for Excel example
+    return {
+      load: productLoadKW, // Should show ~1.17 kW for Excel example
+      loadKJDay: mass * cp * tempDiff // kJ/day
+    };
   };
   
   // EXCEL EXACT FORMULA: Respiration Load (Mass(tonnes) × 50W/tonne / 1000)
@@ -126,21 +133,27 @@ export function calculateColdRoomLoad(
     const respirationFactor = respirationRate; // Excel: 50 W/tonne (constant!)
     
     // EXCEL FORMULA: Mass(tonnes) × 50W/tonne ÷ 1000
-    const respirationLoad = (mass * respirationFactor) / 1000;
+    const respirationLoadKW = (mass * respirationFactor) / 1000;
     
-    return respirationLoad; // Should show 0.20 kW for Excel example (4000kg = 4t × 50W/t)
+    return {
+      load: respirationLoadKW, // Should show 0.20 kW for Excel example (4000kg = 4t × 50W/t)
+      loadKJDay: mass * respirationFactor * 24 * 3.6 / 1000 // kJ/day
+    };
   };
   
-  // EXCEL EXACT FORMULA: Air Change Load (AirFlow × EnthalpyDiff × Hours / 1000)
+  // EXCEL EXACT FORMULA: Air Change Load (AirFlow × EnthalpyDiff × Hours / 24 / 1000)
   const calculateAirChangeLoad = () => {
     const airFlowRate = COLD_ROOM_EXCEL_CONSTANTS.airFlowRate;          // L/S (Excel shows 3.4)
     const enthalpyDiff = COLD_ROOM_EXCEL_CONSTANTS.enthalpyDiff;        // kJ/kg (Excel shows 0.10)
     const hours = operatingHours;     // Excel: 20 hours
     
-    // EXCEL FORMULA: AirFlow × EnthalpyDiff × Hours / 1000
-    const airLoad = (airFlowRate * enthalpyDiff * hours) / 1000;
+    // EXCEL FORMULA: AirFlow × EnthalpyDiff × Hours / 24 / 1000
+    const airLoadKW = (airFlowRate * enthalpyDiff * hours) / 24 / 1000;
     
-    return airLoad; // Should show ~0.068 kW for Excel example
+    return {
+      load: airLoadKW, // Should show ~0.068 kW for Excel example
+      loadKJDay: airFlowRate * enthalpyDiff * hours // kJ/day
+    };
   };
   
   // EXCEL EXACT FORMULA: Door Opening Load (HeaterCapacity × Hours/24)
@@ -149,9 +162,12 @@ export function calculateColdRoomLoad(
     const hours = operatingHours;      // Excel: 20 hours  
     
     // EXCEL FORMULA: HeaterCapacity × (Hours/24)
-    const doorLoad = doorHeaterCapacity * (hours / 24);
+    const doorLoadKW = doorHeaterCapacity * (hours / 24);
     
-    return doorLoad; // Should show ~0.121 kW for Excel example
+    return {
+      load: doorLoadKW, // Should show ~0.121 kW for Excel example
+      loadKJDay: doorHeaterCapacity * hours * 3.6 // kJ/day
+    };
   };
   
   // EXCEL EXACT FORMULA: Miscellaneous Loads
@@ -172,7 +188,11 @@ export function calculateColdRoomLoad(
       equipment: equipmentLoad,   // Should show ~0.208 kW
       occupancy: occupancy,       // Should show ~0.833 kW  
       lighting: lighting,         // Should show ~0.058 kW
-      total: equipmentLoad + occupancy + lighting
+      total: equipmentLoad + occupancy + lighting,
+      // For detailed display (kJ/day)
+      equipmentKJDay: equipmentPower * hours * 3.6,
+      occupancyKJDay: occupancyLoadKW * numberOfPeople * hours * 3.6,
+      lightingKJDay: lightingPower * hours * 3.6
     };
   };
   
@@ -183,9 +203,12 @@ export function calculateColdRoomLoad(
     const hours = operatingHours;
     
     // EXCEL METHOD
-    const peripheralLoad = (heaterCapacity * numHeaters * hours) / 24;
+    const peripheralLoadKW = (heaterCapacity * numHeaters * hours) / 24;
     
-    return peripheralLoad;
+    return {
+      load: peripheralLoadKW,
+      loadKJDay: heaterCapacity * numHeaters * hours * 3.6
+    };
   };
   
   // EXCEL EXACT FORMULA: Door Heaters (separate from door opening)
@@ -194,9 +217,12 @@ export function calculateColdRoomLoad(
     const numDoors = numberOfDoors;          // From input
     const hours = operatingHours;
     
-    const doorHeaterLoad = (heaterCapacity * numDoors * hours) / 24;
+    const doorHeaterLoadKW = (heaterCapacity * numDoors * hours) / 24;
     
-    return doorHeaterLoad;
+    return {
+      load: doorHeaterLoadKW,
+      loadKJDay: heaterCapacity * numDoors * hours * 3.6
+    };
   };
   
   // EXCEL EXACT FORMULA: Steam Humidifiers
@@ -206,23 +232,26 @@ export function calculateColdRoomLoad(
     const humidifierCapacity = 0;     // kW (user input - default 0)
     const hours = operatingHours;
     
-    const humidifierLoad = (humidifierCapacity * hours) / 24;
+    const humidifierLoadKW = (humidifierCapacity * hours) / 24;
     
-    return humidifierLoad;
+    return {
+      load: humidifierLoadKW,
+      loadKJDay: humidifierCapacity * hours * 3.6
+    };
   };
   
   // EXCEL EXACT FORMULA: Storage Capacity Calculations
   const calculateStorageInfo = () => {
     const roomVolume = length * width * height;
-    const storageCapacity = roomVolume * storageDensity; // m³ × kg/m³
+    const maxStorageCapacity = roomVolume * storageDensity; // m³ × kg/m³
     const currentLoad = dailyLoad;
-    const utilization = (currentLoad / storageCapacity) * 100;
+    const utilization = (currentLoad / maxStorageCapacity) * 100;
     
     return {
-      maxStorage: storageCapacity,    // Should show 6339 kg for Excel (3.05×4.5×3.0×8)
+      maxStorage: maxStorageCapacity,    // Should show 6339 kg for Excel (3.05×4.5×3.0×8)
       currentLoad: currentLoad,       // 4000 kg
       utilization: utilization,       // Percentage
-      availableCapacity: storageCapacity - currentLoad
+      availableCapacity: maxStorageCapacity - currentLoad
     };
   };
   
@@ -250,9 +279,9 @@ export function calculateColdRoomLoad(
   const doorHeaters = calculateDoorHeaters(); 
   const steamHumidifiers = calculateSteamHumidifiers();
   
-  const totalLoad = transmissionLoad.total + productLoad + respirationLoad + 
-                   airLoad + doorLoad + miscLoads.total + 
-                   peripheralHeaters + doorHeaters + steamHumidifiers;
+  const totalLoad = transmissionLoad.total + productLoad.load + respirationLoad.load + 
+                   airLoad.load + doorLoad.load + miscLoads.total + 
+                   peripheralHeaters.load + doorHeaters.load + steamHumidifiers.load;
   
   const safetyFactor = COLD_ROOM_EXCEL_CONSTANTS.safetyFactor; // 10%
   const finalLoad = totalLoad * safetyFactor;
@@ -326,16 +355,16 @@ export function calculateColdRoomLoad(
     workingHours,
     breakdown: {
       transmission: transmissionLoad,
-      product: productLoad,
-      respiration: respirationLoad,
-      airChange: airLoad,
-      doorOpening: doorLoad,
+      product: productLoad.load,
+      respiration: respirationLoad.load,
+      airChange: airLoad.load,
+      doorOpening: doorLoad.load,
       miscellaneous: miscLoads,
       heaters: {
-        peripheral: peripheralHeaters,
-        door: doorHeaters,
-        steam: steamHumidifiers,
-        total: peripheralHeaters + doorHeaters + steamHumidifiers
+        peripheral: peripheralHeaters.load,
+        door: doorHeaters.load,
+        steam: steamHumidifiers.load,
+        total: peripheralHeaters.load + doorHeaters.load + steamHumidifiers.load
       }
     },
     totalBeforeSafety: totalLoad,
@@ -350,10 +379,10 @@ export function calculateColdRoomLoad(
     
     // Legacy compatibility
     transmissionLoad: transmissionLoad,
-    productLoad: { total: productLoad, sensible: productLoad },
-    airInfiltrationLoad: airLoad,
+    productLoad: { total: productLoad.load, sensible: productLoad.load },
+    airInfiltrationLoad: airLoad.load,
     internalLoads: miscLoads,
-    doorLoad: doorLoad,
+    doorLoad: doorLoad.load,
     totalLoad: totalLoad,
     totalLoadWithSafety: finalLoad,
     refrigerationTons: totalTR,

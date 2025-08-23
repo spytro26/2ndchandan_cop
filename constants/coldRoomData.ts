@@ -78,7 +78,7 @@ export const COLD_ROOM_EXCEL_CONSTANTS = {
   kwToKJDay: 86.4              // kW to kJ/day (24 * 3.6)
 };
 
-// Enhanced product database with BANANA
+// Enhanced product database with BANANA - EXACT EXCEL VALUES
 export const COLD_ROOM_PRODUCTS = {
   "BANANA": { 
     specificHeatAbove: 4.1,      // kJ/kg·K (Excel exact)
